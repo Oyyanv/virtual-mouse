@@ -1,5 +1,9 @@
 import cv2
 import time
+import mediapipe as mp
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.7)
 
 cam = cv2.VideoCapture(0)
 
@@ -20,6 +24,12 @@ while True:
     previous_time = current_time
 
     frame = cv2.flip(frame, 1)
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(rgb)
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+    
     cv2.putText(frame, f'FPS: {int(fps)}', (10, 30),
                  cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
