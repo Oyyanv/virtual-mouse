@@ -16,6 +16,8 @@ hands = mp_hands.Hands(
 cam = cv2.VideoCapture(0)
 cam.set(3, 1200) # width
 cam.set(4, 900)  # height
+cam.set(cv2.CAP_PROP_FPS, 30)
+cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 #gesture time
 click_start_time = None
@@ -23,9 +25,9 @@ click_time = []
 click_cd = 0.5
 scroll_mode = False
 freeze_mode = False
-
-
 screen_w, screen_h = pyautogui.size()
+last_click_time = 0
+
 print('/n Hand Finger Virtual Mouse /n')
 previous_screen_x, previous_screen_y = 0, 0
 
@@ -34,7 +36,6 @@ if not cam.isOpened():
     exit()
 
 previous_time = 0
-frame_count = 0
 
 while True:
 
@@ -51,14 +52,16 @@ while True:
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = hands.process(rgb)
     if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks: #kalo mau matiinn mp_drawingnya, non-aktifin aja line di 55 terus dibagian finger tipnya tambahin tab atau indent supaya masuk ke loopnya
+        for hand_landmarks in results.multi_hand_landmarks: 
+            #kalo mau matiinn mp_drawingnya, non-aktifin aja line di 57 terus dibagian finger tipnya
+            #tambahin tab atau indent supaya masuk ke loopnya
              mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS) 
     
-        #finger tip
+        #tanda di ujung setiap jari
         thumb_tip = hand_landmarks.landmark[4]
         index_tip = hand_landmarks.landmark[8]
         middle_tip = hand_landmarks.landmark[12]
-        # ring_tip = hand_landmarks.landmark[16]
+        # ring_tip = qhand_landmarks.landmark[16]
         # pinky_tip = hand_landmarks.landmark[20]
         finger = [
             1 if hand_landmarks.landmark[tip].y < hand_landmarks.landmark[tip - 2].y else 0
@@ -71,6 +74,7 @@ while True:
             if not freeze_mode:
                 freeze_mode = True
                 click_time.append(time.time())
+                last_click_time = time.time()
             
             #2x click and 1x click
             if len(click_time) >= 2 and click_time[-1] - click_time[-2]<0.4:
