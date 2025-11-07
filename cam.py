@@ -51,8 +51,8 @@ while True:
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = hands.process(rgb)
     if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-             mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+        for hand_landmarks in results.multi_hand_landmarks: #kalo mau matiinn mp_drawingnya, non-aktifin aja line di 55 terus dibagian finger tipnya tambahin tab atau indent supaya masuk ke loopnya
+             mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS) 
     
         #finger tip
         thumb_tip = hand_landmarks.landmark[4]
