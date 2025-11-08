@@ -14,8 +14,8 @@ hands = mp_hands.Hands(
     model_complexity=0)
 
 cam = cv2.VideoCapture(0)
-cam.set(3, 1200) # width
-cam.set(4, 900)  # height
+cam.set(3, 960) # width
+cam.set(4, 720)  # height
 cam.set(cv2.CAP_PROP_FPS, 30)
 cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
@@ -27,6 +27,8 @@ scroll_mode = False
 freeze_mode = False
 screen_w, screen_h = pyautogui.size()
 last_click_time = 0
+last_click_time_right = 0
+last_scroll_time = 0
 
 print('/n Hand Finger Virtual Mouse /n')
 previous_screen_x, previous_screen_y = 0, 0
@@ -88,6 +90,19 @@ while True:
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         else:
             freeze_mode = False
+        
+        #klik kanan pake jempol dan tengah
+        distance_right_click = math.hypot(thumb_tip.x - middle_tip.x, thumb_tip.y - middle_tip.y)
+        if distance_right_click < 0.06:
+            if not freeze_mode:
+                freeze_mode = True
+                last_click_time_right = time.time()
+                
+            pyautogui.rightClick()
+            cv2.putText(frame, 'Right Click', (10, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        else:
+            freeze_mode = False
 
         #moving cursor with index finger
         if not freeze_mode:
@@ -95,6 +110,24 @@ while True:
             screen_y = int(index_tip.y * screen_h)
             pyautogui.moveTo(screen_x, screen_y, duration=0)
             previous_screen_x, previous_screen_y = screen_x, screen_y
+            
+        #fungsi dibawah untuk masuk ke scroll mode
+        if finger[1] == 1 and finger[2] == 1:
+            scroll_mode = True
+        else:
+            scroll_mode = False
+            
+        #fungsi dibawah untuk aksi scroll mode
+        if scroll_mode:
+            if index_tip.y < 0.4:
+             pyautogui.scroll(60)
+             cv2.putText(frame, 'Scroll Up', (10, 70),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+            elif index_tip.y > 0.6:
+                pyautogui.scroll(-60)
+                cv2.putText(frame, 'Scroll Down', (10, 70),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                last_scroll_time = time.time()
 
     cv2.putText(frame, f'FPS: {int(fps)}', (10, 30),
         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
