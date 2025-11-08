@@ -2,7 +2,7 @@ Requirement :
 - Python 3.12
 - venv gesture 
 py -m venv gesture.env
-- install dependencies (requirement.txt)
+- install Lbiraries (requirement.txt)
     - opencv-python
     - pyautogui
     - numpy
